@@ -12,12 +12,9 @@ interface NavbarButtonProps {
 const NavbarButton: React.FC<NavbarButtonProps> = ({
   title,
   path,
-  currentPath,
   onHoverIndex,
   index,
 }) => {
-  const isActive = path === currentPath;
-
   return (
     <Link href={path}>
       <div

@@ -10,10 +10,12 @@ const useViewport = (): Size => {
 
   React.useEffect(() => {
     const handleResize = () => {
-      setSize({
-        height: window.innerHeight,
-        width: window.innerWidth,
-      });
+      if (typeof window !== "undefined") {
+        setSize({
+          height: window.innerHeight,
+          width: window.innerWidth,
+        });
+      }
     };
     window.addEventListener("resize", handleResize);
     handleResize();

@@ -15,7 +15,7 @@ const config: Config = {
         secondary: "#D5E7DC",
         surface: "#E9E5AA",
         onSurface: "#626031",
-        background: "#FFFBFF",
+        background: "#FFFFFF",
         button: "#C5EAE7",
       },
     },

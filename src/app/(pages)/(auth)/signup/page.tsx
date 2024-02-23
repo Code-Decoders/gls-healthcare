@@ -1,14 +1,15 @@
 "use client";
 import * as React from "react";
+import { UserType } from "@/app/lib/types";
 import Image from "next/image";
 import { playfairDisplay } from "@/app/lib/utils";
 import {
   Button,
   Input,
   Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
   DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
 } from "@nextui-org/react";
 import { IoEye } from "react-icons/io5";
 import { IoMdEyeOff } from "react-icons/io";
@@ -18,9 +19,19 @@ const Signup = () => {
   const [authState, setAuthState] = React.useState({
     email: "",
     password: "",
+    confirmPassword: "",
+    type: UserType.PATIENT,
   });
 
+  const userTypeMapping = {
+    [UserType.PATIENT]: "Patient",
+    [UserType.DOCTOR]: "Doctor",
+    [UserType.RECEPTIONIST]: "Receptionist",
+    [UserType.INSURANCE_COMPANY]: "Insurance Company",
+  };
+
   const [showPass, setShowPass] = React.useState(false);
+  const [showConfirmPass, setShowConfirmPass] = React.useState(false);
   const [rememberMe, setRememberMe] = React.useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -91,6 +102,50 @@ const Signup = () => {
                 )
               }
             />
+            <Input
+              value={authState.confirmPassword}
+              name="confirmPassword"
+              onChange={handleInputChange}
+              label="Confirm Password"
+              labelPlacement="outside"
+              size="lg"
+              placeholder="Re-enter your password"
+              type={showConfirmPass ? "text" : "password"}
+              endContent={
+                showConfirmPass ? (
+                  <IoMdEyeOff
+                    className="cursor-pointer"
+                    onClick={() => setShowConfirmPass(!showConfirmPass)}
+                    size={20}
+                  />
+                ) : (
+                  <IoEye
+                    className="cursor-pointer"
+                    onClick={() => setShowConfirmPass(!showConfirmPass)}
+                    size={20}
+                  />
+                )
+              }
+            />
+            <Dropdown>
+              <DropdownTrigger>
+                <Button variant="faded">
+                  {userTypeMapping[authState.type]}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu variant="faded">
+                {Object.values(UserType).map((type) => (
+                  <DropdownItem
+                    key={type}
+                    onClick={() =>
+                      setAuthState({ ...authState, type: type as UserType })
+                    }
+                  >
+                    {userTypeMapping[type as UserType]}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
             <div className="flex flex-row justify-between">
               <fieldset className="flex gap-2 text-sm font-bold text-gray-500">
                 <input
@@ -120,7 +175,7 @@ const Signup = () => {
         </section>
         <span>
           Already have an account?&nbsp;
-          <Link href="/signup" className="font-bold">
+          <Link href="/login" className="font-bold">
             Sign In
           </Link>
         </span>
