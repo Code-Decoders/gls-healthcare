@@ -1,8 +1,8 @@
 "use client";
 import * as React from "react";
-import { UserType } from "@/app/lib/types";
+import { UserType, User } from "@/app/_lib/types";
 import Image from "next/image";
-import { playfairDisplay } from "@/app/lib/utils";
+import { playfairDisplay } from "@/app/_lib/utils";
 import {
   Button,
   Input,
@@ -14,12 +14,34 @@ import {
 import { IoEye } from "react-icons/io5";
 import { IoMdEyeOff } from "react-icons/io";
 import Link from "next/link";
+import AuthService from "@/app/_lib/services/auth-service";
 
 const Signup = () => {
-  const [authState, setAuthState] = React.useState({
+  const [authState, setAuthState] = React.useState<
+    Partial<User & { confirmPassword: string }>
+  >({
     email: "",
     password: "",
     confirmPassword: "",
+    firstName: "",
+    lastName: "",
+    city: "",
+    address: "",
+    contactNumber: "",
+    type: UserType.PATIENT,
+  });
+
+  const [authStateError, setAuthStateError] = React.useState<
+    Partial<User & { confirmPassword: string }>
+  >({
+    email: "",
+    password: "",
+    confirmPassword: "",
+    firstName: "",
+    lastName: "",
+    city: "",
+    address: "",
+    contactNumber: "",
     type: UserType.PATIENT,
   });
 
@@ -37,9 +59,65 @@ const Signup = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setAuthState({ ...authState, [e.target.name]: e.target.value });
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(authState);
+
+    if (!validateForm()) {
+      return;
+    }
+
+    const { confirmPassword, ...payload } = authState;
+
+    try {
+      const authService = new AuthService();
+      await authService.signup(payload as User).then((res) => console.log(res));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const validateForm = () => {
+    const errors: Partial<User & { confirmPassword: string }> = {};
+
+    if (!authState.email) {
+      errors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(authState.email)) {
+      errors.email = "Email is invalid";
+    }
+
+    if (!authState.password) {
+      errors.password = "Password is required";
+    } else if (authState.password !== authState.confirmPassword) {
+      errors.password = "Passwords do not match";
+    }
+
+    if (!authState.firstName) {
+      errors.firstName = "First Name is required";
+    }
+
+    if (!authState.lastName) {
+      errors.lastName = "Last Name is required";
+    }
+
+    if (!authState.city) {
+      errors.city = "City is required";
+    }
+
+    if (!authState.address) {
+      errors.address = "Address is required";
+    }
+
+    if (!authState.contactNumber) {
+      errors.contactNumber = "Contact Number is required";
+    } else if (authState.contactNumber.length < 10) {
+      errors.contactNumber = "Contact Number is invalid";
+    } else if (!/^\+?\d{10,}$/.test(authState.contactNumber || "")) {
+      errors.contactNumber = "Invalid contact number";
+    }
+
+    setAuthStateError(errors);
+
+    return Object.keys(errors).length === 0;
   };
 
   return (
@@ -53,12 +131,12 @@ const Signup = () => {
           height={1500}
         />
       </div>
-      <div className="flex flex-col flex-1 items-center p-10">
+      <div className="flex flex-col flex-1 items-center p-10 max-h-full overflow-y-auto">
         <span className="text-xl font-bold">GLS Healthcare</span>
         <section title="Login" className="mt-auto flex-col flex gap-16 mb-auto">
           <div className="flex flex-col gap-2 items-center">
             <span
-              className={`${playfairDisplay.className} text-4xl sm:text-6xl font-medium`}
+              className={`${playfairDisplay.className} text-5xl sm:text-6xl font-medium`}
             >
               Register
             </span>
@@ -67,23 +145,84 @@ const Signup = () => {
             </span>
           </div>
           <form onSubmit={onSubmit} className="flex-col flex gap-10">
+            <div className="flex gap-2">
+              <Input
+                value={authState.firstName}
+                name="firstName"
+                errorMessage={authStateError.firstName}
+                onChange={handleInputChange}
+                label="First Name"
+                required
+                labelPlacement="outside"
+                size="lg"
+                placeholder="Enter your first name"
+              />
+              <Input
+                value={authState.lastName}
+                name="lastName"
+                errorMessage={authStateError.lastName}
+                onChange={handleInputChange}
+                required
+                label="Last Name"
+                labelPlacement="outside"
+                size="lg"
+                placeholder="Enter your last name"
+              />
+            </div>
             <Input
               autoComplete="email"
               value={authState.email}
               name="email"
+              errorMessage={authStateError.email}
               onChange={handleInputChange}
               label="Email"
               labelPlacement="outside"
+              required
               size="lg"
               placeholder="Enter your email"
             />
             <Input
+              value={authState.city}
+              name="city"
+              onChange={handleInputChange}
+              errorMessage={authStateError.city}
+              label="City"
+              labelPlacement="outside"
+              size="lg"
+              placeholder="Enter your city"
+              required
+            />
+            <Input
+              value={authState.address}
+              name="address"
+              onChange={handleInputChange}
+              label="Address"
+              labelPlacement="outside"
+              type="text"
+              size="lg"
+              placeholder="Enter your address"
+            />
+            <Input
+              value={authState.contactNumber}
+              name="contactNumber"
+              errorMessage={authStateError.contactNumber}
+              onChange={handleInputChange}
+              label="Contact Number"
+              required
+              labelPlacement="outside"
+              type="tel"
+              size="lg"
+              placeholder="Enter your contact number"
+            />
+            <Input
               value={authState.password}
               name="password"
+              errorMessage={authStateError.password}
               onChange={handleInputChange}
               label="Password"
               labelPlacement="outside"
               size="lg"
+              required
               placeholder="Enter your password"
               type={showPass ? "text" : "password"}
               endContent={
@@ -111,6 +250,7 @@ const Signup = () => {
               size="lg"
               placeholder="Re-enter your password"
               type={showConfirmPass ? "text" : "password"}
+              required
               endContent={
                 showConfirmPass ? (
                   <IoMdEyeOff
@@ -127,25 +267,28 @@ const Signup = () => {
                 )
               }
             />
-            <Dropdown>
-              <DropdownTrigger>
-                <Button variant="faded">
-                  {userTypeMapping[authState.type]}
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu variant="faded">
-                {Object.values(UserType).map((type) => (
-                  <DropdownItem
-                    key={type}
-                    onClick={() =>
-                      setAuthState({ ...authState, type: type as UserType })
-                    }
-                  >
-                    {userTypeMapping[type as UserType]}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
+            <div className="flex flex-col gap-2">
+              <span className="text-medium">Select your account type</span>
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button variant="faded">
+                    {authState.type && userTypeMapping[authState.type]}
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu variant="faded">
+                  {Object.values(UserType).map((type) => (
+                    <DropdownItem
+                      key={type}
+                      onClick={() =>
+                        setAuthState({ ...authState, type: type as UserType })
+                      }
+                    >
+                      {userTypeMapping[type as UserType]}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            </div>
             <div className="flex flex-row justify-between">
               <fieldset className="flex gap-2 text-sm font-bold text-gray-500">
                 <input

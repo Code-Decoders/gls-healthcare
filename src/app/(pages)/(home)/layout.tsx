@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Providers from "@/app/providers";
-import Navbar from "@/app/components/navbar";
+import Navbar from "@/app/_components/navbar";
 import "@/app//globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "GLS Healthcare",
@@ -17,9 +15,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className={`h-full w-full`}>
+    <div>
       <Navbar />
-      <div className="mt-[70px] w-full h-full">
+      <div
+        className="mt-[70px] w-screen "
+        style={{
+          height: "calc(100vh - 70px)",
+        }}
+      >
         <Providers>{children}</Providers>
       </div>
     </div>

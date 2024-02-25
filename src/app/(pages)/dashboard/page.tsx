@@ -1,14 +1,14 @@
 import * as React from "react";
-import { UserType } from "@/app/lib/types";
+import { UserType } from "@/app/_lib/types";
 import {
   PatientDashboard,
   DoctorDashboard,
   ReceptionistDashboard,
   InsuranceDashboard,
-} from "@/app/components/dashboards";
+} from "@/app/_components/dashboards";
 
 const Dashboard: React.FC = () => {
-  const userType: UserType = UserType.DOCTOR;
+  const userType: UserType = UserType.PATIENT;
 
   switch (userType as UserType) {
     case UserType.DOCTOR:

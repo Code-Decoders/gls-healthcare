@@ -1,11 +1,12 @@
 "use client";
 import * as React from "react";
 import Image from "next/image";
-import { playfairDisplay } from "@/app/lib/utils";
+import { playfairDisplay } from "@/app/_lib/utils";
 import { Button, Input } from "@nextui-org/react";
 import { IoEye } from "react-icons/io5";
 import { IoMdEyeOff } from "react-icons/io";
 import Link from "next/link";
+import axios from "axios";
 
 const Login = () => {
   const [authState, setAuthState] = React.useState({
@@ -22,6 +23,7 @@ const Login = () => {
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(authState);
+    axios.post("/api/auth/login", authState).then((res) => console.log(res));
   };
 
   return (
@@ -40,7 +42,7 @@ const Login = () => {
         <section title="Login" className="mt-auto flex-col flex gap-16 mb-auto">
           <div className="flex flex-col gap-2 items-center">
             <span
-              className={`${playfairDisplay.className} text-4xl sm:text-6xl font-medium`}
+              className={`${playfairDisplay.className} text-5xl sm:text-6xl font-medium`}
             >
               Welcome Back
             </span>
