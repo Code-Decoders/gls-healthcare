@@ -6,11 +6,11 @@ import { AES } from "crypto-js";
 
 const encryptSecret: string = envOrDefault("ENCRYPT_SECRET", "gls_health_care");
 
-const UserSchema: mongoose.Schema & {
+export const UserSchema: mongoose.Schema & {
   methods: {
     comparePassword?: (password: string) => boolean;
-  }
-} = new mongoose.Schema<User> (
+  };
+} = new mongoose.Schema<User>(
   {
     id: {
       type: String,
@@ -58,26 +58,30 @@ const UserSchema: mongoose.Schema & {
 );
 
 UserSchema.pre("save", function (next) {
-  
-    const user = this as any;
-    if (!user.isModified("password")) {
-        return next();
-    }
+  const user = this as any;
+  if (!user.isModified("password")) {
+    return next();
+  }
 
-    if (user.password) {
-        user.password = AES.encrypt(user.password, encryptSecret).toString();
-    }
+  if (user.password) {
+    user.password = AES.encrypt(user.password, encryptSecret).toString();
+  }
 
-    if(!user.id) {
-        user.id = uuid4();
-    }
-    next();
+  if (!user.id) {
+    user.id = uuid4();
+  }
+  next();
 });
 
-UserSchema.methods.comparePassword = function (password: string): boolean {
-    const user = this as any;
-    return user.password === AES.decrypt(password, encryptSecret).toString();
-}
+// UserSchema.methods.comparePassword = function (password: string): boolean {
+//   const user = this as any;
+//   const rawDecryptedPassword: CryptoJS.lib.WordArray = CryptoJS.AES.decrypt(
+//     user.password,
+//     encryptSecret
+//   );
+//   const decryptedPassword = rawDecryptedPassword.toString(CryptoJS.enc.Utf8);
+//   return password === decryptedPassword;
+// };
 
 const UserDb = mongoose.models.User || mongoose.model<User>("User", UserSchema);
 

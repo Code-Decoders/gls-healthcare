@@ -6,10 +6,17 @@ import { Button, Input } from "@nextui-org/react";
 import { IoEye } from "react-icons/io5";
 import { IoMdEyeOff } from "react-icons/io";
 import Link from "next/link";
-import axios from "axios";
+import AuthService from "@/app/_lib/services/auth-service";
+import { useRouter } from 'next/navigation'
 
 const Login = () => {
+  const router = useRouter()
   const [authState, setAuthState] = React.useState({
+    email: "",
+    password: "",
+  });
+
+  const [authError, setAuthError] = React.useState({
     email: "",
     password: "",
   });
@@ -22,9 +29,40 @@ const Login = () => {
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(authState);
-    axios.post("/api/auth/login", authState).then((res) => console.log(res));
+
+    if (!validateForm()) {
+      return;
+    }
+
+    const authService = new AuthService();
+    authService
+      .login(authState.email, authState.password)
+      .then((res) => {
+        console.log(res);
+        router.push('/dashboard')
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
+
+  const validateForm = () => {
+    let errors = { email: "", password: "" };
+    let isValid = true;
+
+    if (!authState.email) {
+      errors.email = "Email is required";
+      isValid = false;
+    }
+
+    if (!authState.password) {
+      errors.password = "Password is required";
+      isValid = false;
+    }
+
+    setAuthError(errors);
+    return isValid;
+  }
 
   return (
     <div className="w-full h-full flex">
@@ -56,6 +94,7 @@ const Login = () => {
               name="email"
               onChange={handleInputChange}
               label="Email"
+              errorMessage={authError.email}
               labelPlacement="outside"
               size="lg"
               placeholder="Enter your email"
@@ -68,6 +107,7 @@ const Login = () => {
               labelPlacement="outside"
               size="lg"
               placeholder="Enter your password"
+              errorMessage={authError.password}
               type={showPass ? "text" : "password"}
               endContent={
                 showPass ? (

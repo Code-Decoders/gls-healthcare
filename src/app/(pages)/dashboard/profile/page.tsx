@@ -2,8 +2,25 @@
 import React from "react";
 import { Button, Card, Divider } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
+import AuthService from "@/app/_lib/services/auth-service";
 
 const DoctorProfilePage: React.FC = () => {
+
+  const authService = new AuthService();
+  const router = useRouter()
+
+  const logout = () => {
+    authService
+      .logout()
+      .then((res) => {
+        console.log(res);
+        router.push("/login");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
   return (
     <div
       className="flex flex-col items-center justify-center"
@@ -28,7 +45,7 @@ const DoctorProfilePage: React.FC = () => {
           </div>
           <Divider className="w-full" />
           <div className="flex justify-end w-full ">
-            <Button variant="flat">Logout</Button>
+            <Button variant="flat" onClick={() => logout()}>Logout</Button>
           </div>
         </div>
       </Card>

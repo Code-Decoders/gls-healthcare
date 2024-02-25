@@ -11,11 +11,15 @@ export async function POST(req: NextRequest) {
     const db = MongoDbInit.getInstance();
     db.connect();
 
-    // user UserSchema to upload
+    const userExists = await UserDb.findOne({ email: userPayload.email });
+    if (userExists) {
+      return NextResponse.json({ error: "User already exists" });
+    }
+
     const user = new UserDb(userPayload);
     await user.save();
 
-    return NextResponse.json({ message: "Success" , user: user});
+    return NextResponse.json({ message: "Success", user: user });
   } catch (error: any) {
     return NextResponse.json({ error: error.message });
   }

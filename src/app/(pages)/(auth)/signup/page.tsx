@@ -15,8 +15,10 @@ import { IoEye } from "react-icons/io5";
 import { IoMdEyeOff } from "react-icons/io";
 import Link from "next/link";
 import AuthService from "@/app/_lib/services/auth-service";
+import { useRouter } from "next/navigation";
 
 const Signup = () => {
+  const router = useRouter();
   const [authState, setAuthState] = React.useState<
     Partial<User & { confirmPassword: string }>
   >({
@@ -68,11 +70,12 @@ const Signup = () => {
 
     const { confirmPassword, ...payload } = authState;
 
-    try {
-      const authService = new AuthService();
-      await authService.signup(payload as User).then((res) => console.log(res));
-    } catch (err) {
-      console.log(err);
+    const authService = new AuthService();
+    const { error, data } = await authService.signup(payload as User);
+    if (!error) {
+      router.push("/dashboard");
+    } else {
+      console.log(error);
     }
   };
 

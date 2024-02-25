@@ -1,13 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const middleware = (request: NextRequest) => {
-  const isAuthenticated = true;
   const { pathname } = request.nextUrl;
 
-  console.log("This is the route", pathname);
+  const cookie = request.cookies;
 
-  if (!isAuthenticated && pathname.includes("dashboard")) {
+  const isLoggedIn = JSON.parse(cookie.get("isLoggedIn")?.value || "false");
+
+  if (!isLoggedIn && pathname.includes("dashboard")) {
     return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  if (isLoggedIn && pathname.includes("login")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  if(isLoggedIn && pathname.includes("signup")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 };
 

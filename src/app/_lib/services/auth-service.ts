@@ -8,15 +8,42 @@ interface IAuthService {
 }
 
 class AuthService {
-  login(
-    email: string,
-    password: string,
-    type: "doctor" | "receptionist" | "patient" | "insurance_company"
-  ) {
-    return new Promise((resolve, reject) => {});
+  login(email: string, password: string) {
+    return new Promise((resolve, reject) => {
+      fetch("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const user = data.user;
+          if (data.error) {
+            reject({ error: data.error, data: null });
+          }
+          const authCookieObject = {
+            id: user.id,
+            email: user.email,
+            type: user.type,
+          };
+          const authCookie = JSON.stringify(authCookieObject);
+          Cookies.set("auth", authCookie, {
+            expires: 7,
+          });
+          Cookies.set("isLoggedIn", "true", {
+            expires: 7,
+          });
+          resolve({ data, error: null });
+        })
+        .catch((error) => {
+          reject({ error: error.message, data: null });
+        });
+    });
   }
 
-  signup(payload: User) {
+  signup(payload: User): Promise<{ data: any; error: any }> {
     return new Promise(async (resolve, reject) => {
       try {
         const response = await fetch("/api/auth/signup", {
@@ -28,26 +55,40 @@ class AuthService {
         });
         const data = await response.json();
 
-        console.log(data)
         const user = data.user;
+        if (data.error) {
+          reject({ error: data.error, data: null });
+        }
         const authCookieObject = {
-            id: user.id,
-            email: user.email,
-            type: user.type,
+          id: user.id,
+          email: user.email,
+          type: user.type,
         };
         const authCookie = JSON.stringify(authCookieObject);
-        Cookies.set("auth", authCookie);
-        Cookies.set("isLoggedIn", "true")
-        resolve(data);
+        Cookies.set("auth", authCookie, {
+          expires: 7,
+        });
+        Cookies.set("isLoggedIn", "true", {
+          expires: 7,
+        });
+        resolve({ data, error: null });
       } catch (error: any) {
-        reject(error.message);
+        reject({ error: error.message, data: null });
       }
     });
   }
 
   logout() {
-    return new Promise((resolve, reject) => {});
+    return new Promise((resolve, reject) => {
+      try {
+        Cookies.remove("auth");
+        Cookies.remove("isLoggedIn");
+        resolve({ data: "Success", error: null });
+      } catch (error: any) {
+        reject({ error: error.message, data: null });
+      }
+    });
   }
 }
 
-export default AuthService
+export default AuthService;
