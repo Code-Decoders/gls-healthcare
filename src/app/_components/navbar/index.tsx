@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import NavbarButton from "./navbar-button";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Button,
   Dropdown,
@@ -11,6 +11,7 @@ import {
 } from "@nextui-org/react";
 import { useViewport } from "@/app/_lib/utils";
 import { CiMenuFries } from "react-icons/ci";
+import { useAppProvider } from "@/app/providers";
 
 interface NavBarButtonGroupProps {
   hoverIndex: number | undefined;
@@ -28,23 +29,15 @@ const NavBarButtonGroup: React.FC<NavBarButtonGroupProps> = ({
   const blockStyles: React.CSSProperties = {};
 
   if (hoverIndex === 1) {
-    positionStyles.transform = "translateX(-180%)";
-  } else if (hoverIndex === 2) {
     positionStyles.transform = "translateX(-60%)";
-  } else if (hoverIndex === 3) {
-    positionStyles.transform = "translateX(60%)";
   } else if (hoverIndex === 4) {
-    positionStyles.transform = "translateX(170%)";
+    positionStyles.transform = "translateX(60%)";
   }
 
   if (path === "/" || path === "/#") {
-    blockStyles.transform = "translateX(-150%)";
-  } else if (path === "/consult") {
     blockStyles.transform = "translateX(-50%)";
-  } else if (path === "/insurance") {
-    blockStyles.transform = "translateX(50%)";
   } else if (path === "/about") {
-    blockStyles.transform = "translateX(150%)";
+    blockStyles.transform = "translateX(50%)";
   }
 
   return (
@@ -65,13 +58,18 @@ const NavBarButtonGroup: React.FC<NavBarButtonGroupProps> = ({
 };
 
 const NavBar: React.FC = () => {
+  const router = useRouter()
   const pathname = usePathname();
   const [hoverIndex, setHoverIndex] = React.useState<number | undefined>(0);
-  const { height, width } = useViewport();
+  const { width } = useViewport();
 
   const onNavHover = (index: number | undefined) => {
     setHoverIndex(index);
   };
+
+  const {
+    state: { user },
+  } = useAppProvider();
 
   return (
     <div
@@ -89,20 +87,6 @@ const NavBar: React.FC = () => {
           index={1}
         />
         <NavbarButton
-          title="Consult"
-          path="/consult"
-          currentPath={pathname}
-          onHoverIndex={onNavHover}
-          index={2}
-        />
-        <NavbarButton
-          title="Insurance"
-          path="/insurance"
-          currentPath={pathname}
-          onHoverIndex={onNavHover}
-          index={3}
-        />
-        <NavbarButton
           title="About"
           path="/about"
           currentPath={pathname}
@@ -110,52 +94,60 @@ const NavBar: React.FC = () => {
           index={4}
         />
       </NavBarButtonGroup>
-      <Dropdown backdrop="blur" size={"lg"}>
-        <DropdownTrigger>
-          <Button
-            variant="bordered"
-            className="border-button rounded-md"
-            size={"lg"}
-            isIconOnly={width < 768}
-          >
-            {width > 768 ? "Login" : <CiMenuFries size={24} />}
-          </Button>
-        </DropdownTrigger>
-        {width > 768 ? (
-          <DropdownMenu variant="bordered">
-            <DropdownItem key="patient" href={`/login?type=patient`}>
-              Patient
-            </DropdownItem>
-            <DropdownItem key="doctor" href={`/login?type=doctor`}>
-              Doctor
-            </DropdownItem>
-            <DropdownItem key="receptionist" href={`/login?type=receptionist`}>
-              Receptionist
-            </DropdownItem>
-            <DropdownItem key="insurance" href={`/login?type=insurance`}>
-              Insurance Admin
-            </DropdownItem>
-          </DropdownMenu>
-        ) : (
-          <DropdownMenu variant="bordered">
-            <DropdownItem key="patient" href={`/`}>
-              Home
-            </DropdownItem>
-            <DropdownItem key="doctor" href={`/consult`}>
-              Consult
-            </DropdownItem>
-            <DropdownItem key="receptionist" href={`/insurance`}>
-              Insurance
-            </DropdownItem>
-            <DropdownItem key="insurance" href={`/about`}>
-              About
-            </DropdownItem>
-            <DropdownItem key={"login"} href="/login" color="success">
-              Login
-            </DropdownItem>
-          </DropdownMenu>
-        )}
-      </Dropdown>
+      {!user ? (
+        <Dropdown backdrop="blur" size={"lg"}>
+          <DropdownTrigger>
+            <Button
+              variant="bordered"
+              className="border-button rounded-md"
+              size={"lg"}
+              isIconOnly={width < 768}
+            >
+              {width > 768 ? "Login" : <CiMenuFries size={24} />}
+            </Button>
+          </DropdownTrigger>
+          {width > 768 ? (
+            <DropdownMenu variant="bordered">
+              <DropdownItem key="patient" href={`/login?type=patient`}>
+                Patient
+              </DropdownItem>
+              <DropdownItem key="doctor" href={`/login?type=doctor`}>
+                Doctor
+              </DropdownItem>
+              <DropdownItem
+                key="receptionist"
+                href={`/login?type=receptionist`}
+              >
+                Receptionist
+              </DropdownItem>
+              <DropdownItem key="insurance" href={`/login?type=insurance`}>
+                Insurance Admin
+              </DropdownItem>
+            </DropdownMenu>
+          ) : (
+            <DropdownMenu variant="bordered">
+              <DropdownItem key="patient" href={`/`}>
+                Home
+              </DropdownItem>
+              <DropdownItem key="insurance" href={`/about`}>
+                About
+              </DropdownItem>
+              <DropdownItem key={"login"} href="/login" color="success">
+                Login
+              </DropdownItem>
+            </DropdownMenu>
+          )}
+        </Dropdown>
+      ) : (
+        <Button
+          variant="bordered"
+          onClick={() => router.push("/dashboard")}
+          className="border-button rounded-md"
+          size={"lg"}
+        >
+          Dashboard
+        </Button>
+      )}
     </div>
   );
 };

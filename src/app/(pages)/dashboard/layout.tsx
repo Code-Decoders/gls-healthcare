@@ -1,18 +1,22 @@
+"use client"
 import * as React from "react";
 import { Metadata } from "next";
 import { DashboardNavbar, Header } from "@/app/_components";
-import { UserType } from "@/app/_lib/types";
-
-export const metadata: Metadata = {
-  title: "Dashboard",
-};
+import { useAppProvider } from "@/app/providers";
+import Loading from "@/app/_components/dashboards/loading";
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  return (
+
+  const { state } = useAppProvider();
+
+  return !state?.user ? (
+    <Loading />
+  ): 
+  (
     <div className="w-full h-full">
-      <DashboardNavbar type={UserType.PATIENT} />
+      <DashboardNavbar />
       <div className="pl-[70px] h-full w-full">
         <Header />
         {children}

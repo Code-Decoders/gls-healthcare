@@ -15,43 +15,46 @@ export default class MongoDbInit implements IMongoDbInit {
   static instance: MongoDbInit;
 
   private constructor() {
-    if(!MongoDbInit.instance){
-      this.connect()
+    if (!MongoDbInit.instance) {
+      this.connect();
     }
   }
 
   static getInstance() {
     if (!this.instance) {
       this.instance = new MongoDbInit();
+      this.instance.connect();
     }
     return this.instance;
   }
 
   async connect() {
-    try {
-      await mongoose.connect(this.uri, {
-        maxPoolSize: 10,
-        dbName: "GLSHealthCare",
-      });
+    if (!this.client) {
+      try {
+        await mongoose.connect(this.uri, {
+          maxPoolSize: 10,
+          dbName: "GLSHealthCare",
+        });
 
-      this.client = mongoose;
-      mongoose.connection.on("connected", () => {
-        console.log("Connected to MongoDB");
-      });
+        this.client = mongoose;
+        mongoose.connection.on("connected", () => {
+          console.log("Connected to MongoDB");
+        });
 
-      mongoose.connection.on("disconnected", () => {
-        console.log("Disconnected from MongoDB");
-      });
+        mongoose.connection.on("disconnected", () => {
+          console.log("Disconnected from MongoDB");
+        });
 
-      mongoose.connection.on("error", (err) => {
-        console.log("Error in connection to MongoDB", err);
-      });
+        mongoose.connection.on("error", (err) => {
+          console.log("Error in connection to MongoDB", err);
+        });
 
-      mongoose.connection.on("reconnectFailed", () => {
-        console.log("Reconnection to MongoDB failed");
-      });
-    } catch (err) {
-      console.log(err);
+        mongoose.connection.on("reconnectFailed", () => {
+          console.log("Reconnection to MongoDB failed");
+        });
+      } catch (err) {
+        console.log(err);
+      }
     }
   }
 

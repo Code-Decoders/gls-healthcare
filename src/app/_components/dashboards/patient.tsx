@@ -1,13 +1,15 @@
+"use client";
 import * as React from "react";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Avatar,
-  CardFooter,
-} from "@nextui-org/react";
+import { Card, CardHeader, CardBody, Avatar } from "@nextui-org/react";
+import { useAppProvider } from "@/app/providers";
+import { Patient } from "@/app/_lib/types";
 
 const PatientDashboard = () => {
+  const { state } = useAppProvider();
+
+  const user: Patient = React.useMemo(() => (state.user as Patient), [state.user]);
+  const appointments = React.useMemo(() => user.appointments, [user.appointments]);
+
   return (
     <div
       className="w-full flex flex-col md:p-10 p-5"
@@ -17,7 +19,9 @@ const PatientDashboard = () => {
     >
       <div className="flex flex-row justify-between w-full">
         <div className="flex flex-col gap-2">
-          <span className="md:text-5xl text-2xl font-bold">Hello, Abrahm</span>
+          <span className="md:text-5xl text-2xl font-bold">
+            Hello, {user.firstName}
+          </span>
           <span className="text-medium text-gray-400">
             Track your appointments and reports, all from one place
           </span>
@@ -40,7 +44,7 @@ const PatientDashboard = () => {
                 <span className="text-sm text-gray-400 font-medium">Name:</span>
                 <br />
                 <span className="font-bold lg:text-2xl md:text-2xl text-xl">
-                  Abrahm
+                  {state.user?.firstName} &nbsp; {state.user?.lastName}
                 </span>
               </span>
               <span>
@@ -59,7 +63,7 @@ const PatientDashboard = () => {
               </span>
               <br />
               <span className="font-bold lg:text-2xl md:text-2xl text-xl">
-                5
+                {appointments?.length}
               </span>
             </span>
           </CardBody>

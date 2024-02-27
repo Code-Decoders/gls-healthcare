@@ -1,6 +1,28 @@
-import { UserType, User } from "./user-type";
+import {
+  UserType,
+  User,
+  Patient,
+  Doctor,
+  Receptionist,
+  InsuranceCompany,
+  Appointment,
+  Insurance,
+} from "./user-type";
 import { Size } from "./size";
 import { InsurancePlan } from "./insurance";
+import { AppStateType, AppStateValue } from "./app-state";
 
 export { UserType };
-export type { Size, InsurancePlan, User };
+export type {
+  Size,
+  InsurancePlan,
+  User,
+  AppStateType,
+  Insurance,
+  AppStateValue,
+  Patient,
+  Doctor,
+  Appointment,
+  Receptionist,
+  InsuranceCompany,
+};

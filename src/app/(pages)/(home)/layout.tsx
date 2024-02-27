@@ -23,7 +23,7 @@ export default function RootLayout({
           height: "calc(100vh - 70px)",
         }}
       >
-        <Providers>{children}</Providers>
+        {children}
       </div>
     </div>
   );

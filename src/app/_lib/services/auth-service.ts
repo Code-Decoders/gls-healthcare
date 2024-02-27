@@ -5,9 +5,13 @@ interface IAuthService {
   login(email: string, password: string): Promise<any>;
   signup(payload: User): Promise<any>;
   logout(): Promise<any>;
+  getUser<T>(field: string, value: string): Promise<T | undefined>;
 }
 
-class AuthService {
+class AuthService implements IAuthService{
+
+  
+
   login(email: string, password: string) {
     return new Promise((resolve, reject) => {
       fetch("/api/auth/login", {
@@ -25,8 +29,8 @@ class AuthService {
           }
           const authCookieObject = {
             id: user.id,
-            email: user.email,
             type: user.type,
+            email: user.email,
           };
           const authCookie = JSON.stringify(authCookieObject);
           Cookies.set("auth", authCookie, {
@@ -61,8 +65,8 @@ class AuthService {
         }
         const authCookieObject = {
           id: user.id,
-          email: user.email,
           type: user.type,
+          email: user.email,
         };
         const authCookie = JSON.stringify(authCookieObject);
         Cookies.set("auth", authCookie, {
@@ -84,6 +88,31 @@ class AuthService {
         Cookies.remove("auth");
         Cookies.remove("isLoggedIn");
         resolve({ data: "Success", error: null });
+      } catch (error: any) {
+        reject({ error: error.message, data: null });
+      }
+    });
+  }
+
+  getUser<T>(field: string,  value: string): Promise<T | undefined> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await fetch(
+          "/api/auth?" +
+            new URLSearchParams({
+              field: field,
+              value: value,
+            }).toString(),
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const data = await response.json();
+        console.log(data);
+        resolve(data.user);
       } catch (error: any) {
         reject({ error: error.message, data: null });
       }

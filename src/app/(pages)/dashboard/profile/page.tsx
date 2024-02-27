@@ -1,13 +1,16 @@
 "use client";
-import React from "react";
+import * as React from "react";
 import { Button, Card, Divider } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import AuthService from "@/app/_lib/services/auth-service";
+import { useAppProvider } from "@/app/providers";
 
 const DoctorProfilePage: React.FC = () => {
 
   const authService = new AuthService();
   const router = useRouter()
+
+  const { state } = useAppProvider();
 
   const logout = () => {
     authService
@@ -35,13 +38,12 @@ const DoctorProfilePage: React.FC = () => {
             alt="Doctor Profile Picture"
             className="w-32 h-32 rounded-full"
           />
-          <h1 className="text-2xl font-bold">Dr. John Doe</h1>
-          <p className="text-gray-500">Specialty: Cardiology</p>
+          <h1 className="text-2xl font-bold">Dr. {state.user?.firstName}</h1>
           <Divider className="w-full" />
           <div className="flex flex-col space-y-2">
-            <p className="text-gray-500">Email: johndoe@example.com</p>
-            <p className="text-gray-500">Phone: +1 123-456-7890</p>
-            <p className="text-gray-500">Address: 123 Main St, City, Country</p>
+            <p className="text-gray-500">Email: {state.user?.email}</p>
+            <p className="text-gray-500">Phone: +91&nbsp;{state.user?.contactNumber}</p>
+            <p className="text-gray-500">Address: {state.user?.address}</p>
           </div>
           <Divider className="w-full" />
           <div className="flex justify-end w-full ">

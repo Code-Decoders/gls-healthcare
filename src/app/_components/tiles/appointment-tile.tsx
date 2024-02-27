@@ -9,10 +9,7 @@ interface AppointmentTileProps {
   to: string;
 }
 
-const getRandomImage = () => {
-  const randomImageURL = "https://placekitten.com/200/300";
-  return randomImageURL;
-};
+const getRandomImage = () => "https://placekitten.com/200/300";
 
 const AppointmentTile: React.FC<AppointmentTileProps> = ({
   onTileClick,

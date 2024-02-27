@@ -1,3 +1,4 @@
+'use client'
 import * as React from "react";
 import { UserType } from "@/app/_lib/types";
 import {
@@ -6,9 +7,12 @@ import {
   ReceptionistDashboard,
   InsuranceDashboard,
 } from "@/app/_components/dashboards";
+import { useAppProvider } from "@/app/providers";
 
 const Dashboard: React.FC = () => {
-  const userType: UserType = UserType.PATIENT;
+  const { state } = useAppProvider()
+  const userType = React.useMemo(() => state.user?.type, [state.user?.type]);
+  console.log(state)
 
   switch (userType as UserType) {
     case UserType.DOCTOR:

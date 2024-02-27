@@ -1,4 +1,11 @@
-import { User, UserType } from "@/app/_lib/types";
+import {
+  User,
+  UserType,
+  Patient,
+  Doctor,
+  Receptionist,
+  InsuranceCompany,
+} from "@/app/_lib/types";
 import mongoose from "mongoose";
 import { v4 as uuid4 } from "uuid";
 import { envOrDefault } from "@/app/_lib/utils";
@@ -10,7 +17,7 @@ export const UserSchema: mongoose.Schema & {
   methods: {
     comparePassword?: (password: string) => boolean;
   };
-} = new mongoose.Schema<User>(
+} = new mongoose.Schema<User | Patient | Doctor | Receptionist | InsuranceCompany>(
   {
     id: {
       type: String,
@@ -53,6 +60,14 @@ export const UserSchema: mongoose.Schema & {
       type: Date,
       default: Date.now,
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    }
   },
   { timestamps: true }
 );
@@ -83,6 +98,6 @@ UserSchema.pre("save", function (next) {
 //   return password === decryptedPassword;
 // };
 
-const UserDb = mongoose.models.User || mongoose.model<User>("User", UserSchema);
+const UserDb = mongoose.models?.User || mongoose.model("User", UserSchema);
 
 export default UserDb;

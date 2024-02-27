@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     );
     const decryptedPassword = rawDecryptedPassword.toString(CryptoJS.enc.Utf8);
 
-    const  isPasswordMatch = userPayload.password === decryptedPassword;
+    const isPasswordMatch = userPayload.password === decryptedPassword;
     if (!isPasswordMatch) {
       return NextResponse.json({ error: "Invalid password" });
     }

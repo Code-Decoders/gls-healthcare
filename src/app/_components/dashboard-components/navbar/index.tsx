@@ -7,10 +7,8 @@ import { MdOutlineHealthAndSafety, MdHealthAndSafety } from "react-icons/md";
 import { UserType } from "@/app/_lib/types";
 import { usePathname } from "next/navigation";
 import NavbarButton from "./navbar-button";
-
-interface DashboardNavbarProps {
-  type: UserType;
-}
+import { useAppProvider } from "@/app/providers";
+import { FiPlus } from "react-icons/fi";
 
 interface ButtonRoute {
   title: string;
@@ -52,7 +50,7 @@ const DoctorButtonGroup: React.FC = () => {
 
     {
       title: "Appointments",
-      path: "/appointments",
+      path: "/dashboard/appointments",
       icon: <BsPeople color="gray" size={24} />,
       activeIcon: <BsPeopleFill color="white" size={24} />,
     },
@@ -70,23 +68,23 @@ const PatientButtonGroup: React.FC = () => {
       activeIcon: <GoHomeFill color="white" size={"24"} />,
     },
     {
-      title: "Appointments",
-      path: "/appointments",
-      icon: <BsPeople color="gray" size={24} />,
-      activeIcon: <BsPeopleFill color="white" size={24} />,
-    },
-    {
       title: "Medical Records",
-      path: "/medical-records",
+      path: "/dashboard/medical-records",
       icon: <IoDocumentTextOutline color="gray" size={24} />,
       activeIcon: <IoDocumentText color="white" size={24} />,
     },
     {
-      title: "Insurance",
-      path: "/insurance",
+      title: "Claim Insurance",
+      path: "/dashboard/claim-insurance",
       icon: <MdOutlineHealthAndSafety color="gray" size={24} />,
       activeIcon: <MdHealthAndSafety color="white" size={24} />,
     },
+    {
+      title: "Create Appointment",
+      path: "/dashboard/create-appointment",
+      icon: <FiPlus color="gray" size={24} />,
+      activeIcon: <FiPlus color="white" size={24} />,
+    }
   ];
 
   return <ButtonGroup routes={routes} />;
@@ -102,7 +100,7 @@ const ReceptionistButtonGroup: React.FC = () => {
     },
     {
       title: "Appointments",
-      path: "/appointments",
+      path: "/dashboard/appointments",
       icon: <BsPeople />,
       activeIcon: <BsPeopleFill />,
     },
@@ -130,7 +128,12 @@ const InsuranceButtonGroup: React.FC = () => {
   return <ButtonGroup routes={routes} />;
 };
 
-const DashboardNavbar: React.FC<DashboardNavbarProps> = ({ type }) => {
+const DashboardNavbar: React.FC = () => {
+
+  const { state } = useAppProvider()
+
+  const type = React.useMemo(() => state.user?.type, [state.user?.type]);
+
   const renderButtonGroup = () => {
     switch (type as UserType) {
       case UserType.DOCTOR:

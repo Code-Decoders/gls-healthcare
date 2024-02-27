@@ -1,26 +1,74 @@
 "use client";
 import * as React from "react";
-import { Input, Button, Textarea } from "@nextui-org/react";
+import {
+  Input,
+  Button,
+  Textarea,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
+  DropdownTrigger,
+} from "@nextui-org/react";
 import Image from "next/image";
 import { playfairDisplay } from "@/app/_lib/utils";
+import { AppointmentService } from "@/app/_lib/services/mongoose";
+import { Appointment, Doctor } from "@/app/_lib/types";
+import AuthService from "@/app/_lib/services/auth-service";
+import { useAppProvider } from "@/app/providers";
 
 const Consult = () => {
-  const [form, setForm] = React.useState({
+  const {
+    state: { user },
+  } = useAppProvider();
+  const [form, setForm] = React.useState<Partial<Appointment>>({
     patientName: "",
-    age: "",
     issue: "",
     description: "",
-    preferredTime: "",
-    date: "",
+    time: undefined,
+    date: undefined,
+    doctor: "",
   });
+
+  const [doctors, setDoctors] = React.useState<Doctor[]>([]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(form);
+    const appointmentService = new AppointmentService();
+    try {
+      appointmentService
+        .createAppointment({ ...form, patient: user?.id } as Appointment)
+        .then((e) => {
+          setForm({
+            patient: "",
+            patientName: "",
+            issue: "",
+            description: "",
+            time: undefined,
+            date: undefined,
+            doctor: "",
+          });  
+        });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((val) => ({ ...val, [e.target.name]: e.target.value }));
+
+  React.useEffect(() => {
+    async function fetchUsers() {
+      const authService = new AuthService();
+
+      const user = await authService.getUser<Doctor[]>("type", "doctor");
+      if (user) {
+        setDoctors(user as Doctor[]);
+      }
+    }
+
+    fetchUsers();
+  }, []);
+
   return (
     <div
       className="w-full flex flex-row items-center"
@@ -59,15 +107,6 @@ const Consult = () => {
             fullWidth
           />
           <Input
-            name="age"
-            label={"Age"}
-            placeholder={"Enter patient age"}
-            onChange={handleChange}
-            labelPlacement="outside"
-            value={form.age}
-            fullWidth
-          />
-          <Input
             name="issue"
             label="Issue"
             placeholder="What's your issue?"
@@ -91,16 +130,41 @@ const Consult = () => {
             onChange={handleChange}
             label={"Date"}
             type="date"
-            value={form.date}
+            value={form.date?.toString()}
             labelPlacement="outside"
             fullWidth
           />
+          <div className="w-full flex flex-col  gap-4">
+            <span className="text-lg font-bold">Select Doctor</span>
+            <Dropdown>
+              <DropdownTrigger>
+                <Button variant="flat" size="lg">
+                  {form.doctor
+                    ? doctors.filter((val) => val.id === form.doctor)[0]
+                        .firstName
+                    : "Select Doctor"}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu>
+                {doctors.map((doctor) => (
+                  <DropdownItem
+                    key={doctor.id}
+                    onClick={() =>
+                      setForm((val) => ({ ...val, doctor: doctor.id }))
+                    }
+                  >
+                    {doctor.firstName} {doctor.lastName}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+          </div>
           <Input
-            name="preferredTime"
+            name="time"
             placeholder="Select time"
-            value={form.preferredTime}
+            value={form.time?.toString()}
             onChange={handleChange}
-            type="time"
+            type="datetime-local"
             label={"Preferred time"}
             fullWidth
             labelPlacement="outside"
