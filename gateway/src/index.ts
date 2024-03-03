@@ -202,7 +202,7 @@ app.use("/claim-insurance", async (req: Request, res: Response) => {
 
   contract.submitTransaction("claimInsurance", insurance);
 
-  res.send("Successfully claimed insurance");
+  res.send("Successfully submitted insurance claim");
 });
 
 app.use("approve-insurance", async (req: Request, res: Response) => {
