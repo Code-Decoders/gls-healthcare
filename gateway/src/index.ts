@@ -183,8 +183,13 @@ app.use("/get-appointments", async (req: Request, res: Response) => {
   );
 
   const parsedResult = JSON.parse(utf8Decoder.decode(result));
-
-  res.send("Successfully got appointments" + JSON.stringify(parsedResult));
+  
+  res.send(
+    JSON.stringify({
+      message: "Successfully got appointments",
+      result: JSON.stringify(parsedResult),
+    })
+  );
 });
 
 app.use("/claim-insurance", async (req: Request, res: Response) => {
