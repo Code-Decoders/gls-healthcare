@@ -67,13 +67,7 @@ app.use("/create-appointment", async (req: Request, res: Response) => {
     res.send("Invalid request");
   }
 
-  const body = req.body;
-
-  const doctorId = body.doctorId;
-  const patientId = body.patientId;
-  const receptionistId = body.receptionistId;
-  const date = body.date;
-  const time = body.time;
+  const appointment = req.body;
 
   const glsContractGateway = GLSContractGateway.getInstance();
 
@@ -81,14 +75,7 @@ app.use("/create-appointment", async (req: Request, res: Response) => {
 
   const contract = await glsContractGateway.getContract();
 
-  contract.submitTransaction(
-    "createAppointment",
-    doctorId,
-    patientId,
-    receptionistId,
-    date,
-    time
-  );
+  contract.submitTransaction("createAppointment", appointment);
 
   res.send("Successfully created appointment");
 });
@@ -158,7 +145,7 @@ app.use("/create-report", async (req: Request, res: Response) => {
     res.send("Invalid request");
   }
 
-  const body = req.body;
+  const report = req.body;
 
   const glsContractGateway = GLSContractGateway.getInstance();
 
@@ -166,7 +153,7 @@ app.use("/create-report", async (req: Request, res: Response) => {
 
   const contract = await glsContractGateway.getContract();
 
-  contract.submitTransaction("createReport", body);
+  contract.submitTransaction("createReport", report);
 
   res.send("Successfully created report");
 });
@@ -205,7 +192,7 @@ app.use("/claim-insurance", async (req: Request, res: Response) => {
     res.send("Invalid request");
   }
 
-  const body = req.body;
+  const insurance = req.body;
 
   const glsContractGateway = GLSContractGateway.getInstance();
 
@@ -213,10 +200,7 @@ app.use("/claim-insurance", async (req: Request, res: Response) => {
 
   const contract = await glsContractGateway.getContract();
 
-  contract.submitTransaction(
-    "claimInsurance",
-    body
-  );
+  contract.submitTransaction("claimInsurance", insurance);
 
   res.send("Successfully claimed insurance");
 });
