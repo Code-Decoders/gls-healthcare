@@ -31,9 +31,9 @@ const path = __importStar(require("path"));
 const util_1 = require("util");
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
-const channelName = envOrDefault("CHANNEL_NAME", "gls-channel");
+const channelName = envOrDefault("CHANNEL_NAME", "mychannel");
 const chaincodeName = envOrDefault("CHAINCODE_NAME", "gls-health-care");
-const mspId = envOrDefault("MSP_ID", "Org2MSP");
+const mspId = envOrDefault("MSP_ID", "Org1MSP");
 // Path to crypto materials.
 const cryptoPath = process.env.CRYPTO_PATH || "";
 // Path to user private key directory.
@@ -127,16 +127,24 @@ async function newSigner() {
 function envOrDefault(key, defaultValue) {
     return process.env[key] || defaultValue;
 }
-console.log(certPath, keyDirectoryPath, tlsCertPath, peerEndpoint, peerHostAlias);
+//Log each global constant properly with name
+console.log("channelName: ", channelName);
+console.log("chaincodeName: ", chaincodeName);
+console.log("mspId: ", mspId);
+console.log("cryptoPath: ", cryptoPath);
+console.log("keyDirectoryPath: ", keyDirectoryPath);
+console.log("certPath: ", certPath);
+console.log("tlsCertPath: ", tlsCertPath);
+console.log("peerEndpoint: ", peerEndpoint);
+console.log("peerHostAlias: ", peerHostAlias);
 const testFunction = async () => {
     const glsContractGateway = GLSContractGateway.getInstance();
     await glsContractGateway.connect();
     const contract = await glsContractGateway.getContract();
-    await contract.submitTransaction("createDummyUsers");
-    const patient = await contract.evaluateTransaction("getUser", "patient@mail.com", "patient");
-    const result = utf8Decoder.decode(patient);
-    console.log(result);
     console.log(contract.getChaincodeName());
+    console.log(contract.getContractName());
+    const someMetadata = await contract.evaluateTransaction("getUser", "email", "doctor");
+    console.log(utf8Decoder.decode(someMetadata));
 };
 testFunction();
 //# sourceMappingURL=app.js.map

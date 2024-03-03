@@ -1,7 +1,7 @@
 import { Contract, Context, Transaction } from "fabric-contract-api";
-import { User } from "../types";
+import { User } from "./types";
 import { v4 as uuidv4 } from "uuid";
-import { Appointment, Prescription, Report, Insurance } from "../types/User";
+import { Appointment, Prescription, Report, Insurance } from "./types/User";
 
 interface Response {
   txID: string;
@@ -14,13 +14,7 @@ class HealthCare extends Contract {
   @Transaction()
   async addUser(
     ctx: Context,
-    type: "doctor" | "patient" | "insurance" | "receptionist",
-    username: string,
-    email: string,
-    city: string,
-    address: string,
-    contactNumber: string,
-    fingerPrint: string,
+    user: User
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -29,32 +23,21 @@ class HealthCare extends Contract {
       data: null,
     };
 
-    const userId = email;
+    const userId = user.email;
 
-    const dataAsBytes = await ctx.stub.getState(`${type}-` + userId);
+    const dataAsBytes = await ctx.stub.getState(`${user.type}-` + userId);
     if (dataAsBytes.toString()) {
-      response.message = `User with email ${email} already exists`;
+      response.message = `User with email ${user.email} already exists`;
       return response;
     }
 
-    const doc: User = {
-      id: userId,
-      type,
-      username,
-      email,
-      city,
-      address,
-      contactNumber,
-      fingerPrint,
-    };
-
     await ctx.stub.putState(
-      `${type}-` + userId,
-      Buffer.from(JSON.stringify(doc)),
+      `${user.type}-` + userId,
+      Buffer.from(JSON.stringify(user))
     ),
-      await ctx.stub.setEvent("AddUser", Buffer.from(JSON.stringify(doc)));
+      await ctx.stub.setEvent("AddUser", Buffer.from(JSON.stringify(user)));
 
-    response.message = `Successfully added ${type} with email ${email}`;
+    response.message = `Successfully added ${user.type} with email ${user.email}`;
     response.success = true;
     return response;
   }
@@ -63,11 +46,7 @@ class HealthCare extends Contract {
   @Transaction()
   async createAppointment(
     ctx: Context,
-    doctorId: string,
-    patientId: string,
-    receptionistEmail: string,
-    date: string,
-    time: string,
+    appointment: Appointment
   ): Promise<any> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -76,10 +55,10 @@ class HealthCare extends Contract {
       data: null,
     };
 
-    const receptionistId = receptionistEmail;
+    const receptionistId = appointment.receptionist;
 
     const receptionistData = await ctx.stub.getState(
-      `receptionist-` + receptionistId,
+      `receptionist-` + receptionistId
     );
     if (!receptionistData.toString()) {
       response.message = `Receptionist with id ${receptionistId} does not exist`;
@@ -92,40 +71,31 @@ class HealthCare extends Contract {
       return response;
     }
 
-    const doctorData = await ctx.stub.getState(`doctor-` + doctorId);
+    const doctorData = await ctx.stub.getState(`doctor-` + appointment.doctor);
     if (!doctorData.toString()) {
-      response.message = `Doctor with id ${doctorId} does not exist`;
+      response.message = `Doctor with id ${appointment.doctor} does not exist`;
       return response;
     }
 
-    const patientData = await ctx.stub.getState("patient-" + patientId);
+    const patientData = await ctx.stub.getState("patient-" + appointment.patient);
     if (!patientData.toString()) {
-      response.message = `Patient with id ${patientId} does not exist`;
+      response.message = `Patient with id ${appointment.patient} does not exist`;
       return response;
     }
 
     const doctor: User = JSON.parse(doctorData.toString());
 
-    const appointment: Appointment = {
-      id: uuidv4(),
-      doctor: doctorId,
-      date,
-      time,
-      patient: patientId,
-      createdAt: new Date().toISOString(),
-      status: "pending",
-    };
 
     await ctx.stub.putState(
-      "appointment-" + patientId + "-" + doctorId,
-      Buffer.from(JSON.stringify(doctor)),
+      "appointment-" + appointment.id,
+      Buffer.from(JSON.stringify(doctor))
     );
     await ctx.stub.setEvent(
       "CreateAppointment",
-      Buffer.from(JSON.stringify(appointment)),
+      Buffer.from(JSON.stringify(appointment))
     );
 
-    response.message = `Successfully created appointment for patient with id ${patientId}`;
+    response.message = `Successfully created appointment for patient with id ${appointment.id}`;
     response.success = true;
     return response;
   }
@@ -133,8 +103,7 @@ class HealthCare extends Contract {
   @Transaction()
   async approveAppointment(
     ctx: Context,
-    patientId: string,
-    doctorId: string,
+    id: string
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -143,7 +112,7 @@ class HealthCare extends Contract {
       data: null,
     };
 
-    const appointmentId = "appointment-" + patientId + "-" + doctorId;
+    const appointmentId = "appointment-" + id;
 
     const dataAsBytes = await ctx.stub.getState("");
     if (!dataAsBytes.toString()) {
@@ -156,11 +125,11 @@ class HealthCare extends Contract {
 
     await ctx.stub.putState(
       appointmentId,
-      Buffer.from(JSON.stringify(appointment)),
+      Buffer.from(JSON.stringify(appointment))
     );
     await ctx.stub.setEvent(
       "ApproveAppointment",
-      Buffer.from(JSON.stringify(appointment)),
+      Buffer.from(JSON.stringify(appointment))
     );
 
     response.message = `Successfully approved appointment with id ${appointmentId}`;
@@ -171,8 +140,7 @@ class HealthCare extends Contract {
   @Transaction()
   async rejectAppointment(
     ctx: Context,
-    doctorId: string,
-    patientId: string,
+    id: string
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -181,7 +149,7 @@ class HealthCare extends Contract {
       data: null,
     };
 
-    const appointmentId = "appointment-" + patientId + "-" + doctorId;
+    const appointmentId = "appointment-" + id;
 
     const dataAsBytes = await ctx.stub.getState(appointmentId);
     if (!dataAsBytes.toString()) {
@@ -194,11 +162,11 @@ class HealthCare extends Contract {
 
     await ctx.stub.putState(
       appointmentId,
-      Buffer.from(JSON.stringify(appointment)),
+      Buffer.from(JSON.stringify(appointment))
     );
     await ctx.stub.setEvent(
       "RejectAppointment",
-      Buffer.from(JSON.stringify(appointment)),
+      Buffer.from(JSON.stringify(appointment))
     );
 
     response.message = `Successfully rejected appointment with id ${appointmentId}`;
@@ -209,8 +177,7 @@ class HealthCare extends Contract {
   @Transaction()
   async finishAppointment(
     ctx: Context,
-    doctorId: string,
-    patientId: string,
+    id
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -219,7 +186,7 @@ class HealthCare extends Contract {
       data: null,
     };
 
-    const appointmentId = "appointment-" + patientId + "-" + doctorId;
+    const appointmentId = "appointment-" + id;
 
     const dataAsBytes = await ctx.stub.getState(appointmentId);
     if (!dataAsBytes.toString()) {
@@ -228,15 +195,15 @@ class HealthCare extends Contract {
     }
 
     const appointment: Appointment = JSON.parse(dataAsBytes.toString());
-    appointment.status = "finished";
+    appointment.status = "finish";
 
     await ctx.stub.putState(
       appointmentId,
-      Buffer.from(JSON.stringify(appointment)),
+      Buffer.from(JSON.stringify(appointment))
     );
     await ctx.stub.setEvent(
       "FinishAppointment",
-      Buffer.from(JSON.stringify(appointment)),
+      Buffer.from(JSON.stringify(appointment))
     );
 
     response.message = `Successfully finished appointment with id ${appointmentId}`;
@@ -248,9 +215,7 @@ class HealthCare extends Contract {
   @Transaction()
   async createReport(
     ctx: Context,
-    doctorId: string,
-    patientId: string,
-    reportUrl: string,
+    report: Report
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -259,44 +224,37 @@ class HealthCare extends Contract {
       data: null,
     };
 
-    const reportId = "report-" + patientId + "-" + Date.now();
-    const reportAccess = [doctorId, patientId];
+    const reportId = "report-" + report.id;
+    const reportAccess = [report.doctorId,  report.patientId];
 
-    const dataAsBytes = await ctx.stub.getState(doctorId);
+    const dataAsBytes = await ctx.stub.getState(report.doctorId);
     if (!dataAsBytes.toString()) {
-      response.message = `Doctor with id ${doctorId} does not exist`;
+      response.message = `Doctor with id ${report.doctorId} does not exist`;
       return response;
     }
 
     const doctor: User = JSON.parse(dataAsBytes.toString());
     if (doctor.type !== "doctor") {
-      response.message = `User with id ${doctorId} is not a doctor`;
+      response.message = `User with id ${report.doctorId} is not a doctor`;
       return response;
     }
 
-    const patientData = await ctx.stub.getState(patientId);
+    const patientData = await ctx.stub.getState(report.patientId);
     if (!patientData.toString()) {
-      response.message = `Patient with id ${patientId} does not exist`;
+      response.message = `Patient with id ${report.patientId} does not exist`;
       return response;
     }
 
     const patient: User = JSON.parse(patientData.toString());
 
-    const report: Report = {
-      id: uuidv4(),
-      patientId,
-      doctorId,
-      reportUrl,
-      reportAccess,
-    };
 
     await ctx.stub.putState(reportId, Buffer.from(JSON.stringify(patient)));
     await ctx.stub.setEvent(
       "CreateReport",
-      Buffer.from(JSON.stringify(report)),
+      Buffer.from(JSON.stringify(report))
     );
 
-    response.message = `Successfully created report for patient with id ${patientId}`;
+    response.message = `Successfully created report for patient with id ${report.patientId}`;
     response.success = true;
     return response;
   }
@@ -306,7 +264,7 @@ class HealthCare extends Contract {
     ctx: Context,
     patientEmail: string,
     doctorEmail: string,
-    reportAccess: string[],
+    reportAccess: string[]
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -329,7 +287,7 @@ class HealthCare extends Contract {
     await ctx.stub.putState(reportId, Buffer.from(JSON.stringify(report)));
     await ctx.stub.setEvent(
       "UpdateReportAccess",
-      Buffer.from(JSON.stringify(report)),
+      Buffer.from(JSON.stringify(report))
     );
 
     response.message = `Successfully updated report access for report with id ${reportId}`;
@@ -341,7 +299,7 @@ class HealthCare extends Contract {
   async deleteReport(
     ctx: Context,
     reportId: string,
-    patientEmail: string,
+    patientEmail: string
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -375,10 +333,7 @@ class HealthCare extends Contract {
   @Transaction()
   async createPrescription(
     ctx: Context,
-    doctorId: string,
-    patientId: string,
-    prescriptionUrl: string,
-    prescriptionAccess: string[],
+    prescription: Prescription
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -387,45 +342,38 @@ class HealthCare extends Contract {
       data: null,
     };
 
-    const prescriptionId = "prescription-" + patientId + "-" + doctorId;
+    const prescriptionId = "prescription-" + prescription.id;
 
-    const dataAsBytes = await ctx.stub.getState(doctorId);
+    const dataAsBytes = await ctx.stub.getState(prescription.doctorId);
     if (!dataAsBytes.toString()) {
-      response.message = `Doctor with id ${doctorId} does not exist`;
+      response.message = `Doctor with id ${prescription.doctorId} does not exist`;
       return response;
     }
 
     const doctor: User = JSON.parse(dataAsBytes.toString());
     if (doctor.type !== "doctor") {
-      response.message = `User with id ${doctorId} is not a doctor`;
+      response.message = `User with id ${prescription.doctorId} is not a doctor`;
       return response;
     }
 
-    const patientData = await ctx.stub.getState(patientId);
+    const patientData = await ctx.stub.getState(prescription.patientId);
     if (!patientData.toString()) {
-      response.message = `Patient with id ${patientId} does not exist`;
+      response.message = `Patient with id ${prescription.patientId} does not exist`;
       return response;
     }
 
     const patient: User = JSON.parse(patientData.toString());
 
-    const prescription: Prescription = {
-      id: uuidv4(),
-      doctorId,
-      prescriptionUrl,
-      prescriptionAccess,
-    };
-
     await ctx.stub.putState(
       prescriptionId,
-      Buffer.from(JSON.stringify(patient)),
+      Buffer.from(JSON.stringify(patient))
     );
     await ctx.stub.setEvent(
       "CreatePrescription",
-      Buffer.from(JSON.stringify(prescription)),
+      Buffer.from(JSON.stringify(prescription))
     );
 
-    response.message = `Successfully created prescription for patient with id ${patientId}`;
+    response.message = `Successfully created prescription for patient with id ${prescription.patientId}`;
     response.success = true;
     return response;
   }
@@ -434,7 +382,7 @@ class HealthCare extends Contract {
   async updatePrescriptionAccess(
     ctx: Context,
     prescriptionId: string,
-    prescriptionAccess: string[],
+    prescriptionAccess: string[]
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -453,11 +401,11 @@ class HealthCare extends Contract {
 
     await ctx.stub.putState(
       prescriptionId,
-      Buffer.from(JSON.stringify(prescription)),
+      Buffer.from(JSON.stringify(prescription))
     );
     await ctx.stub.setEvent(
       "UpdatePrescriptionAccess",
-      Buffer.from(JSON.stringify(prescription)),
+      Buffer.from(JSON.stringify(prescription))
     );
 
     response.message = `Successfully updated prescription access for prescription with id ${prescriptionId}`;
@@ -468,7 +416,7 @@ class HealthCare extends Contract {
   @Transaction()
   async deletePrescription(
     ctx: Context,
-    prescriptionId: string,
+    prescriptionId: string
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -486,12 +434,9 @@ class HealthCare extends Contract {
 
   // Insurance functions
   @Transaction()
-  async createInsurance(
+  async claimInsurance(
     ctx: Context,
-    provider: string,
-    insuranceName: string,
-    insuranceId: string,
-    patientId: string,
+    insurance: Insurance
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -501,43 +446,33 @@ class HealthCare extends Contract {
     };
 
     const insuranceStorageId =
-      "insurance-" + patientId + "-" + provider + "-" + insuranceId;
+      "insurance-" + insurance.id;
 
-    const insurance: Insurance = {
-      id: uuidv4(),
-      provider,
-      insuranceName,
-      insuranceId,
-      patient: patientId,
-      createdAt: new Date().toISOString(),
-      status: "pending",
-    };
-
-    const insuranceProviderData = await ctx.stub.getState(provider);
+    const insuranceProviderData = await ctx.stub.getState(insurance.provider);
     if (
       !insuranceProviderData.toString() ||
       JSON.parse(insuranceProviderData.toString()).type !== "insurance"
     ) {
-      response.message = `Insurance provider with id ${provider} does not exist`;
+      response.message = `Insurance provider with id ${insurance.provider} does not exist`;
       return response;
     }
-    const patientData = await ctx.stub.getState(patientId);
+    const patientData = await ctx.stub.getState(insurance.patient);
     if (!patientData.toString()) {
-      response.message = `Patient with id ${patientId} does not exist`;
+      response.message = `Patient with id ${insurance.patient} does not exist`;
       return response;
     }
 
     await ctx.stub.putState(
       insuranceStorageId,
-      Buffer.from(JSON.stringify(insurance)),
+      Buffer.from(JSON.stringify(insurance))
     );
 
     await ctx.stub.setEvent(
-      "CreateInsurance",
-      Buffer.from(JSON.stringify(insurance)),
+      "ClaimInsurance",
+      Buffer.from(JSON.stringify(insurance))
     );
 
-    response.message = `Successfully created insurance for patient with id ${patientId}`;
+    response.message = `Successfully created insurance for patient with id ${insurance.patient}`;
     response.success = true;
     return response;
   }
@@ -561,11 +496,11 @@ class HealthCare extends Contract {
 
     await ctx.stub.putState(
       insuranceId,
-      Buffer.from(JSON.stringify(insurance)),
+      Buffer.from(JSON.stringify(insurance))
     );
     await ctx.stub.setEvent(
       "ApproveInsurance",
-      Buffer.from(JSON.stringify(insurance)),
+      Buffer.from(JSON.stringify(insurance))
     );
 
     response.message = `Successfully approved insurance with id ${insuranceId}`;
@@ -592,11 +527,11 @@ class HealthCare extends Contract {
 
     await ctx.stub.putState(
       insuranceId,
-      Buffer.from(JSON.stringify(insurance)),
+      Buffer.from(JSON.stringify(insurance))
     );
     await ctx.stub.setEvent(
       "RejectInsurance",
-      Buffer.from(JSON.stringify(insurance)),
+      Buffer.from(JSON.stringify(insurance))
     );
 
     response.message = `Successfully rejected insurance with id ${insuranceId}`;
@@ -609,7 +544,7 @@ class HealthCare extends Contract {
   async getReport(
     ctx: Context,
     patientEmail: string,
-    doctorEmail: string,
+    doctorEmail: string
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -627,7 +562,7 @@ class HealthCare extends Contract {
     }
 
     const report: Report = JSON.parse(dataAsBytes.toString());
-    if (!report.reportAccess.includes(doctorEmail)) {
+    if (!report.reportAccess.includes(doctorEmail) || !report.reportAccess.includes(patientEmail)) {
       response.message = `You do not have access to report with id ${reportId}`;
       return response;
     }
@@ -641,8 +576,7 @@ class HealthCare extends Contract {
   @Transaction(false)
   async getPatientPrescriptions(
     ctx: Context,
-    patientEmail: string,
-    doctorEmail: string,
+    id: string,
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -651,18 +585,17 @@ class HealthCare extends Contract {
       data: null,
     };
 
-    const prescriptionId = "prescription-" + patientEmail;
+    const prescriptionId = "prescription-" + id;
     const queryString = `
     "selector": {
-      "type": "prescription",
-      "id": "${prescriptionId}"
+      "patient": "${prescriptionId}"
     }
-    `
+    `;
     let recordCount = 0;
 
-   const queryResult = (await ctx.stub.getQueryResult(queryString));
+    const queryResult = await ctx.stub.getQueryResult(queryString);
     let results: Prescription[] = [];
-    
+
     while (true) {
       let res = await queryResult.next();
 
@@ -682,7 +615,7 @@ class HealthCare extends Contract {
 
       if (res.done) {
         await queryResult.close();
-        response.message = `Successfully fetched prescriptions for patient with id ${patientEmail}`;
+        response.message = `Successfully fetched prescriptions for patient with id ${id}`;
         response.data = {
           data: results,
           recordCount: recordCount,
@@ -696,7 +629,7 @@ class HealthCare extends Contract {
   @Transaction(false)
   async getUserInsurances(
     ctx: Context,
-    patientEmail: string,
+    id: string
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -706,10 +639,10 @@ class HealthCare extends Contract {
     };
     const queryString = `
     "selector": {
-      "id": "insurance-${patientEmail}"
+      "id": "insurance-${id}"
     }
     `;
-    const queryResult = (await ctx.stub.getQueryResult(queryString));
+    const queryResult = await ctx.stub.getQueryResult(queryString);
     let recordCount = 0;
     let results: Insurance[] = [];
 
@@ -743,7 +676,10 @@ class HealthCare extends Contract {
   }
 
   @Transaction(false)
-  async getUserAppointments(ctx: Context, patientEmail: string):  Promise<Response> {
+  async getPatientAppointments(
+    ctx: Context,
+    patientEmail: string
+  ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
       success: false,
@@ -752,9 +688,9 @@ class HealthCare extends Contract {
     };
     const queryString = `
     "selector": {
-      "id": "appointment-${patientEmail}"
-    `; 
-    const queryResult = (await ctx.stub.getQueryResult(queryString));
+      "patient": "${patientEmail}"
+    `;
+    const queryResult = await ctx.stub.getQueryResult(queryString);
     let recordCount = 0;
     let results: Appointment[] = [];
 
@@ -787,11 +723,13 @@ class HealthCare extends Contract {
     }
   }
 
+  
+
   @Transaction(false)
   async getAllDoctors(
     ctx: Context,
     pageSize: number,
-    bookmark: string,
+    bookmark: string
   ): Promise<Response> {
     const response: Response = {
       txID: ctx.stub.getTxID(),
@@ -809,7 +747,7 @@ class HealthCare extends Contract {
     const { iterator, metadata } = await ctx.stub.getQueryResultWithPagination(
       queryString,
       pageSize,
-      bookmark,
+      bookmark
     );
     let results: User[] = [];
 
@@ -837,7 +775,7 @@ class HealthCare extends Contract {
           recordCount: metadata.fetchedRecordsCount,
           bookmark: metadata.bookmark,
         };
-        response.success = true
+        response.success = true;
         return response;
       }
     }
@@ -865,4 +803,4 @@ class HealthCare extends Contract {
   }
 }
 
-export default HealthCare;
+export { HealthCare };

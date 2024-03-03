@@ -1,3 +1,5 @@
-import HealthCare from "./gls-health-contract";
+import { HealthCare } from "./gls-health-contract";
 
-export const contracts: any[] = [ HealthCare ];
+export { HealthCare } from "./gls-health-contract";
+
+export const contracts: any[] = [HealthCare];

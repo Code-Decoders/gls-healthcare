@@ -12,11 +12,11 @@ import { promises as fs } from "fs";
 import * as path from "path";
 import { TextDecoder } from "util";
 import * as dotenv from "dotenv";
-dotenv.config()
+dotenv.config();
 
-const channelName = envOrDefault("CHANNEL_NAME", "gls-channel");
+const channelName = envOrDefault("CHANNEL_NAME", "mychannel");
 const chaincodeName = envOrDefault("CHAINCODE_NAME", "gls-health-care");
-const mspId = envOrDefault("MSP_ID", "Org2MSP");
+const mspId = envOrDefault("MSP_ID", "Org1MSP");
 
 // Path to crypto materials.
 const cryptoPath = process.env.CRYPTO_PATH || "";
@@ -81,9 +81,7 @@ export default class GLSContractGateway implements IGLSContractGateway {
         },
       });
       this.gateway = gateway;
-      console.log("Gateway connected", gateway.getIdentity());
       this.client = client;
-      console.log("Client connected", client);
     }
   };
 
@@ -134,17 +132,13 @@ function envOrDefault(key: string, defaultValue: string) {
   return process.env[key] || defaultValue;
 }
 
-console.log(certPath, keyDirectoryPath, tlsCertPath, peerEndpoint, peerHostAlias);
-
-const testFunction = async () => {
-  const glsContractGateway = GLSContractGateway.getInstance();
-  await glsContractGateway.connect();
-  const contract = await glsContractGateway.getContract();
-  await contract.submitTransaction("createDummyUsers")
-  const patient = await contract.evaluateTransaction("getUser", "patient@mail.com", "patient");
-  const result = utf8Decoder.decode(patient);
-  console.log(result);
-  console.log(contract.getChaincodeName());
-}
-
-testFunction()  
+//Log each global constant properly with name
+console.log("channelName: ", channelName);
+console.log("chaincodeName: ", chaincodeName);
+console.log("mspId: ", mspId);
+console.log("cryptoPath: ", cryptoPath);
+console.log("keyDirectoryPath: ", keyDirectoryPath);
+console.log("certPath: ", certPath);
+console.log("tlsCertPath: ", tlsCertPath);
+console.log("peerEndpoint: ", peerEndpoint);
+console.log("peerHostAlias: ", peerHostAlias);
