@@ -7,11 +7,10 @@ import { AppointmentTile } from "@/app/_components/tiles";
 const MyAppointments: React.FC = () => {
   const { state: { user}} = useAppProvider();
 
-  const appointments = (user as Patient).appointments;
 
   return (
     <div className="container ">
-      <h1>My Appointments{appointments?.toString()}</h1>
+      <h1>My Appointments{" 5"?.toString()}</h1>
     </div>
   );
 };

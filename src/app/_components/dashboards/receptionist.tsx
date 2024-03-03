@@ -81,7 +81,6 @@ const ReceptionistDashboard = () => {
             issue={appointment.issue}
             patientName={appointment.patientName}
             type="receptionist"
-            to="10:00 PM"
             onApprove={(id) => handleAppointmentAction(id, "approved")}
             onReject={(id) => handleAppointmentAction(id, "rejected")}
           />
