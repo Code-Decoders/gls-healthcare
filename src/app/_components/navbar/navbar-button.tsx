@@ -16,7 +16,7 @@ const NavbarButton: React.FC<NavbarButtonProps> = ({
   index,
 }) => {
   return (
-    <Link href={path}>
+    <Link href={path} passHref>
       <div
         className={`p-2 rounded-md text-dark dark:text-light w-28 h-12 flex items-center justify-center text-lg transition-colors ease-out duration-200 nav-button `}
         onMouseEnter={() => onHoverIndex(index)}

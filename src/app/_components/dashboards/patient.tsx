@@ -5,10 +5,14 @@ import { useAppProvider } from "@/app/providers";
 import { Patient } from "@/app/_lib/types";
 
 const PatientDashboard = () => {
-  const { state } = useAppProvider();
+  const {
+    state: { user: stateUser, appointments },
+  } = useAppProvider();
 
-  const user: Patient = React.useMemo(() => (state.user as Patient), [state.user]);
-  const appointments = React.useMemo(() => user.appointments, [user.appointments]);
+  const user: Patient = React.useMemo(
+    () => stateUser as Patient,
+    [stateUser]
+  );
 
   return (
     <div
@@ -44,7 +48,7 @@ const PatientDashboard = () => {
                 <span className="text-sm text-gray-400 font-medium">Name:</span>
                 <br />
                 <span className="font-bold lg:text-2xl md:text-2xl text-xl">
-                  {state.user?.firstName} &nbsp; {state.user?.lastName}
+                  {stateUser?.firstName} &nbsp; {stateUser?.lastName}
                 </span>
               </span>
               <span>

@@ -7,10 +7,10 @@ import { IoEye } from "react-icons/io5";
 import { IoMdEyeOff } from "react-icons/io";
 import Link from "next/link";
 import AuthService from "@/app/_lib/services/auth-service";
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation";
 
 const Login = () => {
-  const router = useRouter()
+  const router = useRouter();
   const [authState, setAuthState] = React.useState({
     email: "",
     password: "",
@@ -38,8 +38,8 @@ const Login = () => {
     authService
       .login(authState.email, authState.password)
       .then((res) => {
-        console.log(res);
-        router.push('/dashboard')
+        location.reload();
+        router.push("/dashboard");
       })
       .catch((err) => {
         console.log(err);
@@ -54,15 +54,16 @@ const Login = () => {
       errors.email = "Email is required";
       isValid = false;
     }
-
     if (!authState.password) {
       errors.password = "Password is required";
       isValid = false;
+    } else if (authState.password.length < 8) {
+      errors.password = "Password must be at least 8 characters";
+      isValid = false;
     }
-
     setAuthError(errors);
     return isValid;
-  }
+  };
 
   return (
     <div className="w-full h-full flex">

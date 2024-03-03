@@ -21,7 +21,6 @@ export type User = {
 };
 
 export type Patient = User & {
-  appointments: Appointment[];
   reports: Report[];
   prescriptions: Prescription[];
 };
@@ -43,23 +42,25 @@ export type InsuranceCompany = User & {
 };
 
 export type Insurance = {
-  patientName?: string;
+  claimant?: string;
   id?: string;
   patient: string;
   provider: string;
   date: Date;
-  time: Date;
   amount: number;
   status: "pending" | "approved" | "rejected";
   detail: string;
+  createdAt: Date;
 };
 
 export type Report = {
   id?: string;
+  reportTitle: string;
   patientId: string;
   doctorId: string;
   reportUrl: string;
   reportAccess: string[];
+  appointmentId: string;
 };
 
 export type Prescription = {
@@ -80,5 +81,5 @@ export type Appointment = {
   description?: string;
   date: Date;
   time: Date;
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "rejected" | "finish";
 };

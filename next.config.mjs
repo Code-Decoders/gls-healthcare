@@ -13,6 +13,8 @@ const nextConfig = {
     config.resolve.fallback = {
       "mongodb-client-encryption": false,
       aws4: false,
+      "child_process": false,
+      "fs/promises": false
     };
 
     return config;

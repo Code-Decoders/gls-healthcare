@@ -1,11 +1,17 @@
 import { envOrDefault } from "../../utils";
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 import type { Mongoose } from "mongoose";
+import lighthouse from "@lighthouse-web3/sdk";
+import mime from "mime";
 
 interface IMongoDbInit {
   client?: Mongoose;
   connect: () => Promise<void>;
   close: () => Promise<void>;
+}
+
+interface INFTStorageService {
+  upload: (file: FileList) => Promise<string | undefined>;
 }
 
 export default class MongoDbInit implements IMongoDbInit {
@@ -61,6 +67,24 @@ export default class MongoDbInit implements IMongoDbInit {
   async close() {
     if (this.client) {
       await this.client.disconnect();
+    }
+  }
+}
+
+const token = envOrDefault(
+  "NFT_STORAGE_KEY",
+  "ccf9a64c.bdb2988ef3594f4b86d6f0297ae57bb6"
+);
+export class NFTStorageService implements INFTStorageService {
+  private client: any;
+
+  async upload(file: FileList) {
+    try {
+      const res = await lighthouse.upload(file, token);
+      const cid = res.data.Hash
+      return cid;
+    } catch (err) {
+      console.log(err);
     }
   }
 }

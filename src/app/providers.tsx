@@ -1,7 +1,7 @@
 "use client";
 import { NextUIProvider } from "@nextui-org/react";
 import * as React from "react";
-import { AppStateType, AppStateValue, Appointment, User } from "./_lib/types";
+import { AppStateType, AppStateValue, User } from "./_lib/types";
 import AuthService from "./_lib/services/auth-service";
 import Cookies from "js-cookie";
 import { AppointmentService } from "./_lib/services/mongoose";
@@ -24,7 +24,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
 
   React.useEffect(() => {
     const fetchUser = async () => {
-      const auth = JSON.parse(Cookies.get("auth") || "") as User;
+      const auth = JSON.parse(Cookies.get("auth") || "{}") as User;
       const user = await authService.getUser<User[]>("email", auth.email);
       const appointments = await appointmentService.getAppointmentByField(
         "patient",

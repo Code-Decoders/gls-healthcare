@@ -38,15 +38,8 @@ const Consult = () => {
       appointmentService
         .createAppointment({ ...form, patient: user?.id } as Appointment)
         .then((e) => {
-          setForm({
-            patient: "",
-            patientName: "",
-            issue: "",
-            description: "",
-            time: undefined,
-            date: undefined,
-            doctor: "",
-          });  
+          alert("Appointment created successfully");
+          setForm({});
         });
     } catch (err) {
       console.log(err);

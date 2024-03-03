@@ -6,7 +6,7 @@ import {
   InsuranceDashboard,
   ReceptionistDashboard,
 } from "./dashboards";
-import { InsurancePlanTile, AppointmentTile } from "./tiles";
+import { InsurancePlanTile, AppointmentTile, ReportTile } from "./tiles";
 
 export {
   DashboardNavbar,
@@ -16,4 +16,7 @@ export {
   InsuranceDashboard,
   ReceptionistDashboard,
   Header,
+  AppointmentTile,
+  InsurancePlanTile,
+  ReportTile,
 };

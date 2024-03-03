@@ -16,8 +16,8 @@ const DoctorProfilePage: React.FC = () => {
     authService
       .logout()
       .then((res) => {
-        console.log(res);
         router.push("/login");
+        location.reload()
       })
       .catch((err) => {
         console.log(err);

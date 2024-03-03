@@ -73,6 +73,7 @@ const Signup = () => {
     const authService = new AuthService();
     const { error, data } = await authService.signup(payload as User);
     if (!error) {
+      location.reload();
       router.push("/dashboard");
     } else {
       console.log(error);
@@ -81,6 +82,9 @@ const Signup = () => {
 
   const validateForm = () => {
     const errors: Partial<User & { confirmPassword: string }> = {};
+    const passwordRegex = new RegExp(
+      "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})"
+    );
 
     if (!authState.email) {
       errors.email = "Email is required";
@@ -92,6 +96,11 @@ const Signup = () => {
       errors.password = "Password is required";
     } else if (authState.password !== authState.confirmPassword) {
       errors.password = "Passwords do not match";
+    } else if (authState.password.length < 8) {
+      errors.password = "Password must be at least 6 characters";
+    } else if (!passwordRegex.test(authState.password)) {
+      errors.password =
+        "Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number";
     }
 
     if (!authState.firstName) {

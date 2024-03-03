@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
     const doctor: Doctor | null = await UserDb.findOne<Doctor | null>({
       id: appointmentPayload.doctor,
     });
-    console.log();
 
     if (
       appointmentExists &&
@@ -34,8 +33,6 @@ export async function POST(req: NextRequest) {
       ...appointmentPayload,
       receptionist: (doctor as any).toObject().receptionist,
     };
-
-    console.log(parsedAppointment);
 
     const appointment = new AppointmentDB(parsedAppointment);
     await appointment.save();
@@ -76,7 +73,6 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    console.log("This is the appointment", appointments);
     return NextResponse.json({
       message: "Success",
       error: null,

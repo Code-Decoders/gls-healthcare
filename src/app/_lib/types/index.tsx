@@ -5,6 +5,7 @@ import {
   Doctor,
   Receptionist,
   InsuranceCompany,
+  Report,
   Appointment,
   Insurance,
 } from "./user-type";
@@ -25,4 +26,5 @@ export type {
   Appointment,
   Receptionist,
   InsuranceCompany,
+  Report
 };

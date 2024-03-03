@@ -84,7 +84,7 @@ const PatientButtonGroup: React.FC = () => {
       path: "/dashboard/create-appointment",
       icon: <FiPlus color="gray" size={24} />,
       activeIcon: <FiPlus color="white" size={24} />,
-    }
+    },
   ];
 
   return <ButtonGroup routes={routes} />;
@@ -95,14 +95,8 @@ const ReceptionistButtonGroup: React.FC = () => {
     {
       title: "Dashboard",
       path: "/dashboard",
-      icon: <GoHome />,
-      activeIcon: <GoHomeFill />,
-    },
-    {
-      title: "Appointments",
-      path: "/dashboard/appointments",
-      icon: <BsPeople />,
-      activeIcon: <BsPeopleFill />,
+      icon: <GoHome color="gray" size={24} />,
+      activeIcon: <GoHomeFill color="white" size={24} />,
     },
   ];
 
@@ -114,14 +108,8 @@ const InsuranceButtonGroup: React.FC = () => {
     {
       title: "Dashboard",
       path: "/dashboard",
-      icon: <GoHome />,
-      activeIcon: <GoHomeFill />,
-    },
-    {
-      title: "Insurance Claims",
-      path: "/claims",
-      icon: <IoDocumentTextOutline />,
-      activeIcon: <IoDocumentText />,
+      icon: <GoHome color="gray" size={24} />,
+      activeIcon: <GoHomeFill color="white" size={24} />,
     },
   ];
 
@@ -129,8 +117,7 @@ const InsuranceButtonGroup: React.FC = () => {
 };
 
 const DashboardNavbar: React.FC = () => {
-
-  const { state } = useAppProvider()
+  const { state } = useAppProvider();
 
   const type = React.useMemo(() => state.user?.type, [state.user?.type]);
 

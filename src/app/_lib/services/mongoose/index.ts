@@ -4,7 +4,9 @@ import { UserSchema } from "./schemas/User";
 import { AppointmentSchema } from "./schemas/Appointment";
 import InsuranceDB, { InsuranceSchema } from "./schemas/Insurance";
 import AppointmentDB from "./schemas/Appointment";
-import { AppointmentService } from "./db";
+import ReportDB, { ReportSchema } from "./schemas/Report";
+import { NFTStorageService } from "./initDb";
+import { AppointmentService, InsuranceClaimService, ReportService } from "./db";
 
 export {
   MongoDbInit,
@@ -14,5 +16,10 @@ export {
   AppointmentDB,
   AppointmentService,
   InsuranceDB,
-  InsuranceSchema
+  InsuranceSchema,
+  InsuranceClaimService,
+  ReportDB,
+  ReportSchema,
+  NFTStorageService,
+  ReportService,
 };
