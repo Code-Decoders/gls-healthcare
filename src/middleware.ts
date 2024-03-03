@@ -7,6 +7,10 @@ const middleware = (request: NextRequest) => {
 
   const isLoggedIn = JSON.parse(cookie.get("isLoggedIn")?.value || "false");
 
+  if(pathname == "/"){
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
   if (!isLoggedIn && pathname.includes("dashboard")) {
     return NextResponse.redirect(new URL("/", request.url));
   }

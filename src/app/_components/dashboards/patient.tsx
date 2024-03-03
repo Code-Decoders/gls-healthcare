@@ -31,7 +31,7 @@ const PatientDashboard = () => {
           </span>
         </div>
         <div className="text-end">
-          <span className="font-bold md:text-5xl text-2xl">5</span>
+          <span className="font-bold md:text-5xl text-2xl">1</span>
           <br />
           <span className="md:text-medium text-sm text-gray-400 font-medium">
             Available reports

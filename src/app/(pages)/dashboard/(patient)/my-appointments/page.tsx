@@ -10,7 +10,7 @@ const MyAppointments: React.FC = () => {
 
   return (
     <div className="container ">
-      <h1>My Appointments{" 5"?.toString()}</h1>
+      <h1>My Appointments{" 5"}</h1>
     </div>
   );
 };
