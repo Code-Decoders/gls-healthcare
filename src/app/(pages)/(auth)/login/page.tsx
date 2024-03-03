@@ -57,9 +57,6 @@ const Login = () => {
     if (!authState.password) {
       errors.password = "Password is required";
       isValid = false;
-    } else if (authState.password.length < 8) {
-      errors.password = "Password must be at least 8 characters";
-      isValid = false;
     }
     setAuthError(errors);
     return isValid;

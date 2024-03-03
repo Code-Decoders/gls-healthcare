@@ -138,7 +138,7 @@ export class AppointmentService implements IAppointmentService {
     return new Promise(async (resolve, reject) => {
       try {
         console.log(payload);
-        const response = await fetch(baseFabricApiUrl, {
+        const response = await fetch("/api/appointment", {
           method: "PUT",
           body: JSON.stringify(payload),
           headers: {
